@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMI 재단 고충 처리 사건 분석 대시보드 (상세 버전)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .tab-btn.active {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background-color: #1f2937;
+        }
+        .timeline-details ul {
+            list-style-position: inside;
+            padding-left: 0.5rem;
+        }
+        .timeline-details li::marker {
+            content: '✓ ';
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <!-- 헤더 -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-white">KMI 재단 고충 처리 사건 분석 대시보드</h1>
+            <p class="text-gray-400 mt-2">내부 고충 처리 과정의 주요 쟁점 및 흐름 상세 분석</p>
+        </header>
+
+        <!-- 핵심 지표 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg flex items-center space-x-4">
+                <div class="bg-blue-500/20 p-3 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                <div>
+                    <p class="text-gray-400 text-sm">분석 기간</p>
+                    <p class="text-xl font-bold text-white">2025.07.29 - 2025.07.31</p>
+                </div>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg flex items-center space-x-4">
+                <div class="bg-red-500/20 p-3 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></div>
+                <div>
+                    <p class="text-gray-400 text-sm">핵심 갈등 유형</p>
+                    <p class="text-xl font-bold text-white">5 개</p>
+                </div>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg flex items-center space-x-4">
+                 <div class="bg-green-500/20 p-3 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                <div>
+                    <p class="text-gray-400 text-sm">주요 대응 계획</p>
+                    <p class="text-xl font-bold text-white">10+ 건</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 차트 및 타임라인 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+            <!-- 차트 섹션 -->
+            <div class="lg:col-span-1 flex flex-col gap-8">
+                <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <h2 class="text-xl font-bold mb-4 text-white">주요 갈등 원인 분포</h2>
+                    <div class="chart-container">
+                        <canvas id="conflictCausesChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <h2 class="text-xl font-bold mb-4 text-white">핵심 인물별 언급 빈도</h2>
+                    <div class="chart-container">
+                        <canvas id="keyPeopleChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 타임라인 섹션 -->
+            <div class="lg:col-span-2 bg-gray-800 p-6 rounded-xl shadow-lg">
+                <h2 class="text-xl font-bold mb-6 text-white">사건 진행 타임라인 (상세)</h2>
+                <div id="timeline-container" class="relative border-l-2 border-gray-700 pl-8 space-y-10">
+                    <!-- 타임라인 아이템이 동적으로 추가될 영역 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 갈등 상세 분석 (탭) -->
+        <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+            <h2 class="text-xl font-bold mb-4 text-white">주요 갈등 상세 분석</h2>
+            <div id="tabs-container" class="border-b border-gray-700 mb-4 flex flex-wrap -mb-px">
+                <!-- 탭 버튼이 동적으로 추가될 영역 -->
+            </div>
+            <div id="tab-content-container">
+                <!-- 탭 콘텐츠가 동적으로 추가될 영역 -->
+            </div>
+        </div>
+        
+        <!-- 푸터 -->
+        <footer class="text-center mt-10 text-gray-500 text-sm">
+            <p>본 데이터는 제공된 통화 기록을 바탕으로 재구성되었습니다.</p>
+            <p>Generated by Gemini for KMI Foundation Case Analysis.</p>
+        </footer>
+    </div>
+
+    <script>
+        // 데이터베이스: 제공된 텍스트를 상세하게 구조화
+        const caseData = {
+            timeline: [
+                {
+                    date: "2025.07.29",
+                    person: "이현지 주임",
+                    title: "파트장 역할론 대두 및 내부 갈등 표면화",
+                    details: [
+                        "<strong>파트장(송기나)의 모호한 태도 비판:</strong> '정근길 입장도, 옴니 입장도 이해된다'며 팀원의 입장에 공감하지 않는 태도에 문제 제기.",
+                        "<strong>책임 회피성 발언 지적:</strong> '잘 모르겠다', '전의를 상실했다'는 말로 일관하며 파트장으로서 문제 해결 의지를 보이지 않음을 비판.",
+                        "<strong>'감정적 대응' 프레임 반박:</strong> 팀원들의 문제 제기는 1년 반 동안 누적된 부당함에 대한 정당한 '업무적' 문제 제기임을 강조.",
+                        "<strong>자료 제출 방식 이견:</strong> 새로운 '수치화' 자료 요구는 본질을 흐리는 것이라 판단, 기존 '주간 업무 보고' 자료 제출을 주장."
+                    ]
+                },
+                {
+                    date: "2025.07.30",
+                    person: "송기나 주임",
+                    title: "경영진의 '팀 해체' 제안과 정면 충돌",
+                    details: [
+                        "<strong>'팀 해체' 제안의 부당성 지적:</strong> 고충 처리의 본질(업무 시정 요구)을 왜곡하고 문제 제기 인원을 제거하려는 시도로 간주하며 절대 수용 불가 입장 표명.",
+                        "<strong>'외부 팀장 영입' 제안 반발:</strong> 외부 '옴니' 출신 팀장 영입은 팀원들을 더욱 억압하려는 의도로 해석하며 강하게 반발.",
+                        "<strong>근본 원인 재확인:</strong> 팀장의 1년 반 동안의 업무 태만과 '옴니'와의 불공정한 관계가 문제의 핵심임을 재확인.",
+                        "<strong>공식 면담 요구:</strong> 개인 면담을 거부하고, 팀원 4명과 팀장 1명의 1:4 공식 면담을 요구. ('정지우' 배석 불가 조건)"
+                    ]
+                },
+                {
+                    date: "2025.07.31 (오전)",
+                    person: "이현지/송기나 주임",
+                    title: "공식 문서 작성 방향성 조율",
+                    details: [
+                        "<strong>요구의 본질 명료화:</strong> 요구사항은 개별 업무 '수치화'가 아닌, '옴니'와 직접 협의할 수 있는 '공식적 권한 부여'임을 명확히 함.",
+                        "<strong>문서의 초점 설정:</strong> 문서의 핵심을 '옴니'에 대한 불만이 아닌, '팀장의 역할 부재'로 설정해야 한다고 의견을 모음.",
+                        "<strong>팀장 책임 구체화:</strong> 문서에 팀장의 ▲소통 부재 ▲업무 파악 노력 부족 ▲핵심 역할 불이행 등을 명시해야 한다고 주장.",
+                        "<strong>'팀 해체' 언급에 대한 대응:</strong> 고충 처리 신고에 대한 '팀 해체' 언급은 위협적인 언사로 간주하고 문서에 명시하기로 함."
+                    ]
+                },
+                {
+                    date: "2025.07.31 (오후)",
+                    person: "이현지 주임",
+                    title: "파트장의 입장 변화 및 내부 분열 심화",
+                    details: [
+                        "<strong>파트장의 책임 전가 포착:</strong> 파트장이 다른 팀원에게 책임을 전가('지우 쌤이 수치화를 거부해서 일이 커졌다')하고 경영진에 동조하는 정황 포착.",
+                        "<strong>경영진의 분열 전략 파악:</strong> 팀장과 실장이 파트장의 '자질 부족' 문제로 책임을 돌리고, 팀원들을 이간질하여 내부 분열을 유도하고 있음을 파악.",
+                        "<strong>'내부 고발자 제거' 의도 분석:</strong> 모든 상황이 결국 문제를 제기한 팀원들을 고립시키고 제거하려는 의도라고 분석.",
+                        "<strong>팩트와 감정의 분리 강조:</strong> '말투'가 아닌 주장의 '팩트'에 집중해야 함을 강조하며, 본질을 흐리려는 시도를 비판."
+                    ]
+                },
+                {
+                    date: "2025.07.31 (저녁)",
+                    person: "이현지 주임",
+                    title: "최종 대응 전략 수립: '가해자' 규정 및 역공 준비",
+                    details: [
+                        "<strong>'가해자 2명' 규정:</strong> 팀장과 파트장을 '개별 가해자'로 명확히 규정하고, 이들을 분리하여 대응하는 전략 수립.",
+                        "<strong>이간계 전략 구상:</strong> 1:1 면담을 통해 팀장에게 '이 모든 일의 시작은 파트장이었다'고 폭로하여 둘 사이를 이간질할 계획 수립.",
+                        "<strong>개인 불이익 공론화 결정:</strong> 단순 업무 문제를 넘어, '옴니' 시절부터 이어진 부당한 승진 누락(밴드 문제)을 공식적으로 제기하기로 결정.",
+                        "<strong>최종 목표 재설정:</strong> 단순 업무 개선을 넘어 '자질 없는 파트장 교체' 및 '팀장에 대한 공식 징계'를 최종 목표로 설정."
+                    ]
+                }
+            ],
+            conflicts: [
+                {
+                    name: "팀장 리더십 부재",
+                    description: "팀장(정근길)이 1년 반이라는 장기간 동안 팀의 리더로서 기본적인 역할을 수행하지 않은 것이 이번 사태의 가장 근본적인 원인으로 지목됩니다. 문제 해결보다는 현상 유지와 책임 회피에 급급한 태도로 일관하여 팀원들의 불만을 극대화시켰습니다.",
+                    examples: [
+                        "<strong>문제 제기 묵살:</strong> 지난 1년 반 동안 팀원들이 지속적으로 제기한 업무 문제를 무시하거나 제대로 된 피드백을 제공하지 않음.",
+                        "<strong>핵심 역할 방기:</strong> 외부 업체 '옴니'와의 갈등 상황에서 중재자 역할을 전혀 하지 않고, 오히려 문제를 제기한 팀원에게 책임을 전가함.",
+                        "<strong>소통 부재:</strong> 팀원들과의 공식적인 소통 채널을 마련하지 않고, 문제가 공론화되자 1:1 면담을 통해 각개격파를 시도함.",
+                        "<strong>책임 회피성 팀 해체 시도:</strong> 고충 처리의 본질을 외면하고, 자신을 향한 문제 제기를 없애기 위해 '팀 해체'라는 극단적인 카드를 꺼내 듦."
+                    ]
+                },
+                {
+                    name: "파트장 역할 논란",
+                    description: "고충 처리 과정 전반에 걸쳐 파트장(송기나)의 역할과 태도가 팀 내부의 핵심 갈등 요인으로 부상했습니다. 초기에는 문제 해결에 대한 의지를 보이지 않고 책임을 회피하는 듯한 모습을 보였고, 후반으로 갈수록 점차 경영진의 입장에 동조하며 문제의 본질을 흐리고 동료 팀원에게 책임을 전가하는 모습을 보였습니다. 이로 인해 팀원들의 신뢰를 완전히 잃고 내부 분열을 심화시키는 결정적인 역할을 했습니다.",
+                    examples: [
+                        "<strong>입장 불분명 및 책임 회피:</strong> 사태 초반 '전의를 상실했다'며 책임을 회피하고, '빠지는 게 맞는 것 같다'며 공동 대응에서 이탈하려는 태도를 보임.",
+                        "<strong>내부 분열 유발:</strong> 팀장과 팀원 사이를 오가며 양쪽에 다른 말을 전달하고, 특정 팀원('지우 쌤')에게 책임을 전가하여 팀의 단합을 해침.",
+                        "<strong>경영진 동조 및 정보 왜곡:</strong> 실장 앞에서 '된 게 없다'는 발언의 의미를 왜곡하여 전달하고, 다른 팀원에게 '감정적으로 말하지 말라'고 하는 등 경영진의 입장을 대변함.",
+                        "<strong>신뢰 상실:</strong> 지속적인 말 바꾸기와 거짓말로 인해 동료 팀원들로부터 '박쥐 같다'는 비판을 받으며 신뢰를 완전히 상실함."
+                    ]
+                },
+                {
+                    name: "경영진의 부적절한 대응",
+                    description: "경영진은 문제의 본질인 '업무 환경 및 프로세스 개선' 요구를 해결하기보다, 문제를 제기한 팀원들을 와해시키려는 듯한 부적절한 대응으로 사태를 악화시켰습니다. 이는 건강한 문제 제기 문화를 억압하고 내부 고발자를 위협하는 행위로 비칠 수 있습니다.",
+                    examples: [
+                        "<strong>본질 왜곡:</strong> 팀원들의 '업무 시정 요구'를 '팀 내부의 불화' 문제로 축소하고, 문제의 근본 원인을 파악하려는 노력을 보이지 않음.",
+                        "<strong>위협적인 해결책 제시:</strong> 고충 처리 신고 반나절 만에 1안으로 '팀 해체', 2안으로 '외부(옴니) 파견직 팀장 초빙'을 제안하여 팀원들을 압박함.",
+                        "<strong>내부 고발자 제거 시도:</strong> '센터로 돌아가면 아무 말도 하면 안 된다'는 식의 조건을 다는 등, 내부 고발자를 조직에서 제거하려는 의도를 드러냄."
+                    ]
+                },
+                {
+                    name: "'옴니'와의 불공정 관계",
+                    description: "외부 업체 '옴니'와의 관계에서 발생한 구조적인 문제가 팀의 업무 환경을 지속적으로 악화시켰습니다. 특히 팀장 선에서 이러한 불공정한 관계를 바로잡지 못하고 방치하면서, 특정 팀원에게 부당한 공격이 집중되는 결과를 낳았습니다.",
+                    examples: [
+                        "<strong>부당한 데이터 요구:</strong> 문제 해결을 위해 '옴니'의 잘못을 증명할 데이터를 오히려 내부 팀원들에게 수치화하여 보고하라고 요구함.",
+                        "<strong>원칙 준수에 대한 공격:</strong> 원칙대로 업무를 처리한 팀원('광화문' 지점 담당)이 오히려 '옴니'로부터 집중적인 공격을 받는 상황을 팀장이 방치함.",
+                        "<strong>잘못된 관행의 고착화:</strong> 다른 팀원들이 '옴니'의 잘못된 요청을 비공식적으로 수정해주는 관행이 있었으며, 이로 인해 원칙을 지킨 사람이 고립됨."
+                    ]
+                },
+                {
+                    name: "개인에 대한 부당 처우",
+                    description: "단순한 업무 갈등을 넘어, 특정 개인에 대한 명백한 불이익과 인권 침해 소지가 있는 문제들이 제기되었습니다. 이는 고충 처리의 정당성을 강화하고, 사태의 심각성을 보여주는 중요한 쟁점입니다.",
+                    examples: [
+                        "<strong>불공정한 승진 누락:</strong> '옴니'에서 재단으로 넘어오는 과정 및 이후에도 명확한 이유 없이 특정 팀원의 승진(밴드)이 누락됨.",
+                        "<strong>업무 역량의 부당한 평가절하:</strong> 개인의 업무 역량과 직급이 부당하게 평가절하되었으며, 이에 대한 소명과 사과 요구가 있었음.",
+                        "<strong>인권 침해 묵살:</strong> 메일 감시 등 인권 침해 소지가 있는 상황에 대해 팀장이 아무런 조치를 취하지 않고 묵살함."
+                    ]
+                }
+            ],
+            peopleMentions: {
+                '팀장(정근길)': 15,
+                '파트장(송기나)': 20,
+                '경영진/실장': 8,
+                "'옴니'": 7,
+                '팀원(화자)': 12
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCharts();
+            renderTimeline();
+            renderTabs();
+        });
+
+        function renderCharts() {
+            const chartColors = ['#ef4444', '#f97316', '#eab308', '#84cc16', '#3b82f6'];
+            
+            // 갈등 원인 도넛 차트
+            const ctxCauses = document.getElementById('conflictCausesChart')?.getContext('2d');
+            if(ctxCauses) {
+                new Chart(ctxCauses, {
+                    type: 'doughnut',
+                    data: {
+                        labels: caseData.conflicts.map(c => c.name),
+                        datasets: [{
+                            data: [35, 30, 15, 12, 8],
+                            backgroundColor: chartColors,
+                            borderColor: '#1f2937',
+                            borderWidth: 4,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { color: '#d1d5db', font: { size: 12 }, padding: 20 } } }
+                    }
+                });
+            }
+
+            // 인물별 언급 빈도 바 차트
+            const ctxPeople = document.getElementById('keyPeopleChart')?.getContext('2d');
+            if(ctxPeople) {
+                new Chart(ctxPeople, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(caseData.peopleMentions),
+                        datasets: [{
+                            label: '언급 빈도',
+                            data: Object.values(caseData.peopleMentions),
+                            backgroundColor: chartColors.slice(0, Object.keys(caseData.peopleMentions).length),
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { ticks: { color: '#9ca3af' }, grid: { color: '#374151' } },
+                            y: { ticks: { color: '#d1d5db' }, grid: { display: false } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function renderTimeline() {
+            const container = document.getElementById('timeline-container');
+            if (!container) return;
+            container.innerHTML = '';
+            caseData.timeline.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'relative';
+                div.innerHTML = `
+                    <div class="absolute w-4 h-4 bg-blue-500 rounded-full -left-[38px] mt-1.5 border-4 border-gray-800"></div>
+                    <p class="text-sm text-gray-400">${item.date} - <span class="font-semibold text-gray-300">${item.person}</span></p>
+                    <h3 class="text-lg font-semibold text-blue-300 mt-1">${item.title}</h3>
+                    <div class="timeline-details text-gray-300 mt-2 text-sm leading-relaxed">
+                        <ul class="space-y-1">
+                            ${item.details.map(detail => `<li>${detail}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderTabs() {
+            const tabsContainer = document.getElementById('tabs-container');
+            const contentContainer = document.getElementById('tab-content-container');
+            if (!tabsContainer || !contentContainer) return;
+            
+            tabsContainer.innerHTML = '';
+            contentContainer.innerHTML = '';
+
+            caseData.conflicts.forEach((conflict, index) => {
+                const button = document.createElement('button');
+                button.className = `tab-btn py-2 px-4 border-b-2 text-sm md:text-base font-medium transition-colors duration-300 border-transparent text-gray-400 hover:text-blue-400 ${index === 0 ? 'active' : ''}`;
+                button.textContent = conflict.name;
+                button.dataset.tab = `tab-${index}`;
+                tabsContainer.appendChild(button);
+
+                const contentDiv = document.createElement('div');
+                contentDiv.id = `tab-${index}`;
+                contentDiv.className = `p-4 ${index !== 0 ? 'hidden' : ''}`;
+                contentDiv.innerHTML = `
+                    <p class="text-gray-300 mb-4 leading-relaxed">${conflict.description}</p>
+                    <div class="border-t border-gray-700 pt-4">
+                        <h4 class="font-semibold text-blue-300 mb-2">주요 정황 및 발언:</h4>
+                        <ul class="space-y-2 text-sm">
+                            ${conflict.examples.map(ex => `<li class="flex items-start"><span class="text-blue-400 mr-2 mt-1">▶</span><span class="flex-1">${ex}</span></li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                contentContainer.appendChild(contentDiv);
+
+                button.addEventListener('click', () => {
+                    tabsContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                    contentContainer.querySelectorAll('div[id^="tab-"]').forEach(content => content.classList.add('hidden'));
+
+                    button.classList.add('active');
+                    document.getElementById(button.dataset.tab).classList.remove('hidden');
+                });
+            });
+        }
+
+    </script>
+</body>
+</html>
