@@ -3,520 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KMI 갈등 분석 대화형 대시보드</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>회의 결과 확인 및 이행 서약서</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+        /* --- Global Reset & Font --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        
+        :root {
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --accent-color: #007aff;
+            --border-color: #dee2e6;
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+        }
+
         body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            line-height: 1.7;
         }
-        .tab-btn {
-            transition: all 0.3s ease;
-            border-bottom: 4px solid transparent;
-            padding: 1rem 1.2rem;
+
+        /* --- Layout --- */
+        .container {
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 2rem;
+            box-sizing: border-box;
         }
-        .tab-btn.active {
-            border-bottom-color: #3b82f6;
-            color: #3b82f6;
-            background-color: #eff6ff;
-        }
-        .content-panel {
-            display: none;
-            animation: fadeIn 0.5s;
-        }
-        .content-panel.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+
         .card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-        }
-        .timeline-item {
-            border-left: 3px solid #93c5fd;
-        }
-        .timeline-item:last-child {
-            border-image: linear-gradient(to bottom, #93c5fd, transparent) 1 100%;
-        }
-        .timeline-dot {
-            left: -14px;
-            transition: transform 0.3s ease;
-        }
-        .timeline-item:hover .timeline-dot {
-            transform: scale(1.2);
-        }
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease-in-out;
-        }
-        .conflict-node {
+            background: var(--card-background);
+            border-radius: 16px;
+            padding: 3rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
+            position: relative;
         }
-        .conflict-node:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+
+        /* --- Header --- */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 2rem;
+        }
+        .header h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -1px;
+        }
+        .header p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* --- Content Sections --- */
+        .section {
+            margin-bottom: 2.5rem;
+        }
+        .section h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+        .section h2::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background-color: var(--accent-color);
+            margin-right: 0.75rem;
+            border-radius: 2px;
+        }
+        
+        .preamble {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--accent-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        article {
+            margin-bottom: 2.5rem;
+        }
+        article h3 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+        article p, article ol {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            padding-left: 1.2rem;
+        }
+        article ol li {
+            margin-bottom: 0.5rem;
+        }
+        strong {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* --- Signature Section --- */
+        .signature-section {
+            margin-top: 4rem;
+        }
+        .signature-date {
+            text-align: right;
+            font-weight: 500;
+            margin-bottom: 2rem;
+        }
+        .signature-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .signature-table th, .signature-table td {
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            text-align: center;
+        }
+        .signature-table th {
+            background-color: #f8f9fa;
+            font-weight: 500;
+        }
+        .signature-table td:last-child {
+            height: 60px; /* Signature space */
+        }
+        
+        /* --- Print Button --- */
+        .print-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .print-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* --- Responsive & Print Design --- */
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+            .card {
+                padding: 1.5rem;
+            }
+            .header h1 {
+                font-size: 1.75rem;
+            }
+            .print-btn {
+                position: static;
+                width: 100%;
+                margin-bottom: 2rem;
+            }
+        }
+
+        @media print {
+            body {
+                background-color: #fff;
+            }
+            .container {
+                margin: 0;
+                padding: 0;
+                max-width: 100%;
+            }
+            .card {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+            }
+            .print-btn {
+                display: none;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body>
 
-    <div class="min-h-screen container mx-auto p-4 sm:p-6 lg:p-8">
-        <header class="text-center mb-10">
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800">KMI 내부 갈등 분석 대시보드</h1>
-            <p class="text-md sm:text-lg text-gray-600 mt-3">옴니케어 관련 업무 갈등 및 내부 소통 문제에 대한 대화형 분석 보고서</p>
-        </header>
+    <div class="container">
+        <div class="card">
+            <button class="print-btn" onclick="window.print()">📄 인쇄하기</button>
+            <header class="header">
+                <h1>회의 결과 확인 및 이행 서약서</h1>
+                <p>Confirmation of Meeting Resolutions and Pledge of Implementation</p>
+            </header>
 
-        <main class="bg-white rounded-xl shadow-2xl">
-            <!-- Tabs Navigation -->
-            <div class="border-b border-gray-200 sticky top-0 bg-white/80 backdrop-blur-sm z-10">
-                <nav class="flex flex-wrap -mb-px" id="tab-nav">
-                    <button class="tab-btn active text-sm sm:text-base font-medium text-gray-500 hover:text-blue-600" data-tab="dashboard">
-                        <i class="fas fa-tachometer-alt mr-2"></i>대시보드
-                    </button>
-                    <button class="tab-btn text-sm sm:text-base font-medium text-gray-500 hover:text-blue-600" data-tab="timeline">
-                        <i class="fas fa-stream mr-2"></i>타임라인
-                    </button>
-                    <button class="tab-btn text-sm sm:text-base font-medium text-gray-500 hover:text-blue-600" data-tab="conflict-map">
-                        <i class="fas fa-project-diagram mr-2"></i>갈등 관계도
-                    </button>
-                    <button class="tab-btn text-sm sm:text-base font-medium text-gray-500 hover:text-blue-600" data-tab="logs">
-                        <i class="fas fa-file-alt mr-2"></i>녹취록 전문
-                    </button>
-                    <button class="tab-btn text-sm sm:text-base font-medium text-gray-500 hover:text-blue-600" data-tab="issues">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>핵심 이슈
-                    </button>
-                    <button class="tab-btn text-sm sm:text-base font-medium text-gray-500 hover:text-blue-600" data-tab="legal">
-                        <i class="fas fa-gavel mr-2"></i>법적 근거
-                    </button>
-                </nav>
-            </div>
+            <main>
+                <section class="section preamble">
+                    <strong>전문 (Preamble)</strong><br>
+                    본 서약서는 검진사업기획팀 검진사업운영파트(이하 "팀")의 팀원(이하 "서약인")들이 아래 명시된 회의(이하 "본 회의")에서 도출된 제반 합의 및 결정사항(이하 "회의 결과")을 명확히 인지하고 그 내용이 사실과 부합함을 확인하며, 해당 회의 결과를 신의성실의 원칙에 입각하여 성실히 이행할 것을 서약하고, 위반 시 발생하는 책임에 대해 동의함을 증명하기 위해 작성한다.
+                </section>
 
-            <!-- Content Panels -->
-            <div class="p-4 sm:p-6 lg:p-8">
-                <!-- Dashboard Panel -->
-                <div id="dashboard" class="content-panel active">
-                    <h2 class="text-2xl font-bold mb-6 text-gray-700">종합 현황</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="card bg-red-50 border border-red-200 p-6 rounded-lg">
-                            <h3 class="font-bold text-lg text-red-800 mb-2"><i class="fas fa-fire mr-2"></i>핵심 갈등</h3>
-                            <p class="text-red-700">리더십의 소통 부재 및 책임 방기 속에서 협력사(옴니케어)의 일방적 합의 파기로 인한 업무 부담이 팀원들에게 전가되고, 문제 제기 과정에서 내부 갈등이 심화된 복합적 위기 상황.</p>
-                        </div>
-                        <div class="card bg-yellow-50 border border-yellow-200 p-6 rounded-lg">
-                            <h3 class="font-bold text-lg text-yellow-800 mb-2"><i class="fas fa-hourglass-half mr-2"></i>현재 상태</h3>
-                            <p class="text-yellow-700">고충 처리 위원회에 정식 문제 제기 후, 경영진은 '팀 해체' 등 문제의 본질과 다른 해결책을 제시. 팀원들은 공동 대응을 준비하며 내부적으로 분열과 재결속을 반복 중.</p>
-                        </div>
-                        <div class="card bg-green-50 border border-green-200 p-6 rounded-lg">
-                            <h3 class="font-bold text-lg text-green-800 mb-2"><i class="fas fa-bullseye mr-2"></i>궁극적 목표</h3>
-                            <p class="text-green-700">부당한 업무 프로세스 정상화, 리더십의 책임 인정 및 교체, 건강한 협력 관계 재구축 및 직원 보호 시스템 마련.</p>
-                        </div>
-                    </div>
-                    <h3 class="text-xl font-bold mt-10 mb-4 text-gray-700">주요 이해관계자 (Key Players)</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="card bg-blue-50 p-4 rounded-lg text-center">
-                            <i class="fas fa-users text-blue-500 text-3xl mb-2"></i>
-                            <h4 class="font-bold text-blue-800">운영팀 (피해자)</h4>
-                            <p class="text-sm text-blue-700">과도한 업무 부담과 부당한 압박을 받으며 문제 해결을 요구하는 주체.</p>
-                        </div>
-                        <div class="card bg-gray-200 p-4 rounded-lg text-center">
-                            <i class="fas fa-user-tie text-gray-600 text-3xl mb-2"></i>
-                            <h4 class="font-bold text-gray-800">정근길 팀장 (관리자)</h4>
-                            <p class="text-sm text-gray-700">소통을 거부하고 문제 해결에 소극적으로 대응하여 갈등을 심화시킨 핵심 책임자.</p>
-                        </div>
-                        <div class="card bg-orange-50 p-4 rounded-lg text-center">
-                            <i class="fas fa-user-friends text-orange-500 text-3xl mb-2"></i>
-                            <h4 class="font-bold text-orange-800">송기나 파트장 (중재자/역할 변화)</h4>
-                            <p class="text-sm text-orange-700">초기엔 팀 입장이었으나, 점차 경영진에 동조하며 내부 분열의 원인이 됨.</p>
-                        </div>
-                        <div class="card bg-purple-50 p-4 rounded-lg text-center">
-                            <i class="fas fa-building text-purple-500 text-3xl mb-2"></i>
-                            <h4 class="font-bold text-purple-800">옴니케어 (외부 요인)</h4>
-                            <p class="text-sm text-purple-700">합의를 파기하고 비협조적인 태도로 업무 비효율을 유발한 갈등의 시발점.</p>
-                        </div>
-                    </div>
-                </div>
+                <article class="section">
+                    <h2>제1조 (목적)</h2>
+                    <p>본 서약서의 목적은 팀의 공식적인 의사결정 과정을 문서화하고, 서약인 간의 상호 신뢰를 구축하며, 회의 결과의 임의적 또는 악의적인 왜곡, 부인, 불이행 등으로 인해 발생할 수 있는 업무상의 분쟁 및 손실을 사전에 방지하는 데 있다.</p>
+                </article>
 
-                <!-- Timeline Panel -->
-                <div id="timeline" class="content-panel">
-                    <h2 class="text-2xl font-bold mb-8 text-gray-700">대화형 사건 타임라인</h2>
-                    <div class="relative">
-                        <div class="timeline-item relative pl-12 pb-10 card p-4 rounded-lg hover:bg-gray-50">
-                            <div class="timeline-dot absolute w-6 h-6 bg-blue-500 rounded-full border-4 border-white"></div>
-                            <p class="text-sm text-gray-500">2024.03</p>
-                            <h4 class="font-bold text-lg">업무 효율화 합의</h4>
-                            <p class="text-gray-600">'매출 수정' 업무에 '일괄 수정 양식(엑셀)'을 사용하기로 양사 실무진 공식 합의.</p>
-                        </div>
-                        <div class="timeline-item relative pl-12 pb-10 card p-4 rounded-lg hover:bg-gray-50">
-                            <div class="timeline-dot absolute w-6 h-6 bg-red-500 rounded-full border-4 border-white"></div>
-                            <p class="text-sm text-gray-500">2024.04 ~</p>
-                            <h4 class="font-bold text-lg text-red-600">합의 파기 및 갈등 시작</h4>
-                            <p class="text-gray-600">옴니케어 분사 후, 합의 사실 부인 및 양식 제공 거부. 운영팀의 수기 업무 폭증. 팀장의 방관 시작.</p>
-                        </div>
-                        <div class="timeline-item relative pl-12 pb-10 card p-4 rounded-lg hover:bg-gray-50">
-                            <div class="timeline-dot absolute w-6 h-6 bg-red-600 rounded-full border-4 border-white"></div>
-                            <p class="text-sm text-gray-500">2025.01.23</p>
-                            <h4 class="font-bold text-lg text-red-600">소통 창구 단절</h4>
-                            <p class="text-gray-600">팀장의 면담 요청 거부. "팀장은 팀원과 직접 대화하지 않는다"는 일방적 통보.</p>
-                        </div>
-                         <div class="timeline-item relative pl-12 pb-10 card p-4 rounded-lg hover:bg-gray-50">
-                            <div class="timeline-dot absolute w-6 h-6 bg-yellow-500 rounded-full border-4 border-white"></div>
-                            <p class="text-sm text-gray-500">2025.07.29</p>
-                            <h4 class="font-bold text-lg text-yellow-600">고충 처리 및 내부 분열</h4>
-                            <p class="text-gray-600">준법경영팀에 정식 고충 접수. 파트장의 입장 변화 및 팀원 간 갈등 발생.</p>
-                        </div>
-                        <div class="timeline-item relative pl-12 pb-10 card p-4 rounded-lg hover:bg-gray-50">
-                            <div class="timeline-dot absolute w-6 h-6 bg-red-700 rounded-full border-4 border-white"></div>
-                            <p class="text-sm text-gray-500">2025.07.30</p>
-                            <h4 class="font-bold text-lg text-red-700">경영진의 부적절한 대응</h4>
-                            <p class="text-gray-600">문제 해결 대신 '팀 해체 후 센터 복귀', '외부 팀장 영입' 등 위협적인 대안 제시.</p>
-                        </div>
-                        <div class="timeline-item relative pl-12 card p-4 rounded-lg hover:bg-gray-50">
-                            <div class="timeline-dot absolute w-6 h-6 bg-green-500 rounded-full border-4 border-white"></div>
-                            <p class="text-sm text-gray-500">2025.07.31 ~ 현재</p>
-                            <h4 class="font-bold text-lg text-green-600">대응 전략 수립</h4>
-                            <p class="text-gray-600">팀원들, '가해자 2명(팀장, 파트장)'에 대한 분리 대응 및 법적/인사적 문제 제기를 포함한 최종 전략 수립.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Conflict Map Panel -->
-                <div id="conflict-map" class="content-panel">
-                    <h2 class="text-2xl font-bold mb-8 text-gray-700">갈등 관계도</h2>
-                    <div class="w-full p-4 bg-gray-50 rounded-lg relative h-[600px] sm:h-[500px]">
-                        <!-- Center Node -->
-                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                             <div class="conflict-node text-center p-4 border-4 border-blue-500 bg-blue-100 rounded-full w-32 h-32 flex flex-col justify-center">
-                                <i class="fas fa-users text-3xl text-blue-600 mb-2"></i>
-                                <h3 class="font-bold">운영팀</h3>
-                                <p class="text-xs">(피해 주체)</p>
-                            </div>
-                        </div>
-
-                        <!-- Surrounding Nodes -->
-                        <div class="absolute top-0 left-1/2 -translate-x-1/2">
-                            <div class="conflict-node text-center p-3 border-2 border-purple-500 bg-purple-100 rounded-lg w-32">
-                                <i class="fas fa-building text-2xl text-purple-600 mb-1"></i>
-                                <h3 class="font-bold">옴니케어</h3>
-                                <p class="text-xs">(갈등 유발)</p>
-                            </div>
-                        </div>
-                        <div class="absolute top-1/2 right-0 -translate-y-1/2">
-                             <div class="conflict-node text-center p-3 border-2 border-gray-500 bg-gray-100 rounded-lg w-32">
-                                <i class="fas fa-user-tie text-2xl text-gray-600 mb-1"></i>
-                                <h3 class="font-bold">팀장/파트장</h3>
-                                <p class="text-xs">(책임 방기)</p>
-                            </div>
-                        </div>
-                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2">
-                            <div class="conflict-node text-center p-3 border-2 border-gray-800 bg-gray-200 rounded-lg w-32">
-                                <i class="fas fa-sitemap text-2xl text-gray-800 mb-1"></i>
-                                <h3 class="font-bold">경영진</h3>
-                                <p class="text-xs">(부적절 대응)</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Connectors -->
-                        <svg class="absolute top-0 left-0 w-full h-full" style="z-index: 0;">
-                            <defs>
-                                <marker id="arrowhead-red" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="#ef4444"/></marker>
-                                <marker id="arrowhead-green" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto"><polygon points="0 0, 5 1.75, 0 3.5" fill="#16a34a"/></marker>
-                            </defs>
-                            <!-- Team <-> Omni -->
-                            <line x1="50%" y1="40%" x2="50%" y2="15%" stroke="#ef4444" stroke-width="2" />
-                            <text x="50%" y="28%" fill="#ef4444" font-size="12" text-anchor="middle" class="font-bold">업무 갈등</text>
-                            
-                            <!-- Team <-> Leads -->
-                            <line x1="60%" y1="50%" x2="85%" y2="50%" stroke="#f97316" stroke-width="2" />
-                            <text x="72.5%" y="47%" fill="#f97316" font-size="12" text-anchor="middle" class="font-bold">소통 단절</text>
-                            
-                            <!-- Team <-> Management -->
-                            <line x1="50%" y1="60%" x2="50%" y2="85%" stroke="#16a34a" stroke-width="2" marker-end="url(#arrowhead-green)" />
-                            <line x1="50%" y1="85%" x2="50%" y2="60%" stroke="#ef4444" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrowhead-red)" />
-                            <text x="50%" y="73%" fill="#333" font-size="12" text-anchor="middle" class="font-bold">고충 제기 / 압박</text>
-                        </svg>
-                    </div>
-                </div>
+                <article class="section">
+                    <h2>제2조 (회의 결과의 특정 및 확인)</h2>
+                    <ol>
+                        <li>서약인들은 본 서약서에 별첨된 회의록(이하 "별첨 회의록")이 본 회의의 안건, 논의 과정, 그리고 최종 결정사항을 사실에 입각하여 정확하게 기술하고 있음을 확인하고 이에 동의한다.</li>
+                        <li>별첨 회의록은 본 서약서의 일부로서, 서약서와 동일한 효력을 갖는다.<br><strong>[별첨 #1] ______년 ____월 ____일자 검진사업기획팀 검진사업운영파트 회의록</strong></li>
+                    </ol>
+                </article>
                 
-                <!-- Full Logs Panel -->
-                <div id="logs" class="content-panel">
-                    <h2 class="text-2xl font-bold mb-6 text-gray-700">녹취록 전문</h2>
-                    <div id="logs-accordion-container" class="space-y-2">
-                        <!-- Log entries will be injected here by JS -->
-                    </div>
-                </div>
+                <article class="section">
+                    <h2>제3조 (서약인의 의무)</h2>
+                    <p>서약인은 다음과 같은 의무를 부담할 것을 서약한다.</p>
+                    <ol>
+                        <li><strong>(성실 이행의 의무)</strong> 별첨 회의록에 명시된 결정사항 및 각자에게 부여된 역할과 책임을 민법 제2조에서 정한 신의성실의 원칙에 따라 지체 없이 성실하게 이행한다.</li>
+                        <li><strong>(내용 유지의 의무)</strong> 공식적인 재합의 절차를 거치지 않는 한, 본인의 주관적인 판단이나 사정 변경을 이유로 본 회의 결과를 부인, 번복, 왜곡, 또는 축소 해석하는 일체의 행위를 하지 아니한다.</li>
+                        <li><strong>(비밀유지 및 정확성 유지의 의무)</strong> 본 회의 결과를 회사 내부의 타인 또는 외부에 전달할 경우, 그 내용을 의도적으로 왜곡, 와전, 누락, 또는 과장하지 아니하며, 객관적인 사실만을 전달한다.</li>
+                    </ol>
+                </article>
+                
+                <article class="section">
+                    <h2>제4조 (서약 위반 시의 책임)</h2>
+                    <p>① 서약인이 제3조의 의무를 위반한 경우, 해당 행위는 회사의 공식적인 의사결정에 대한 불복이자 팀워크를 저해하는 중대한 귀책사유로 간주되며, 서약인은 다음 각 호의 책임이 발생할 수 있음을 인지하고 이에 동의한다.</p>
+                    <ol>
+                        <li><strong>[내부 징계 책임]</strong> 회사의 취업규칙, 인사규정 등 사규에 따른 공식적인 징계(견책, 감봉, 정직 등) 조치에 이의를 제기하지 않는다. 이 경우 본 서약서는 징계 사유를 입증하는 결정적 증거로 사용될 수 있다.</li>
+                        <li><strong>[민사상 손해배상 책임]</strong> 서약인의 의무 위반 행위로 인하여 회사 또는 다른 서약인(팀원)에게 <strong>모든 직접적, 간접적, 유형적, 무형적 손해</strong>가 발생한 경우, 그 손해 일체를 배상할 책임이 있다. 손해액에 대한 다툼이 있을 경우, 귀책 당사자는 자신의 행위와 손해 발생 간에 인과관계가 없음을 직접 입증하여야 한다.</li>
+                        <li><strong>[형사상 책임]</strong> 서약인의 의무 위반 행위가 형법상 명예훼손, 업무방해, 사기 등 별도의 범죄 구성요건을 충족할 경우, 서약인은 본 서약서에 따른 책임과 별개로 형사 고소 또는 고발을 당할 수 있으며, 그에 따른 처벌을 감수한다.</li>
+                    </ol>
+                </article>
 
+                <article class="section">
+                    <h2>제5조 (분쟁의 해결)</h2>
+                    <ol>
+                        <li>본 서약서의 해석이나 이행과 관련하여 분쟁이 발생하는 경우, 서약인들은 상호 협의를 통해 원만히 해결하도록 노력한다.</li>
+                        <li>제1항의 협의가 이루어지지 않을 경우, 본 서약서와 관련된 소송의 제1심 관할법원은 서울중앙지방법원으로 한다.</li>
+                    </ol>
+                </article>
 
-                <!-- Issues Panel -->
-                <div id="issues" class="content-panel">
-                     <h2 class="text-2xl font-bold mb-6 text-gray-700">핵심 이슈 분석</h2>
-                     <div id="issues-accordion-container" class="space-y-4">
-                        <div class="border border-gray-200 rounded-lg">
-                            <button class="accordion-btn w-full flex justify-between items-center p-4 text-left font-semibold text-lg text-gray-700 bg-gray-50 hover:bg-gray-100">
-                                <span><i class="fas fa-handshake-slash mr-3 text-red-500"></i>업무 협력 체계의 붕괴</span>
-                                <i class="fas fa-chevron-down transition-transform"></i>
-                            </button>
-                            <div class="accordion-content bg-white"><div class="p-4 border-t border-gray-200 text-gray-600"><p><strong>- 원인:</strong> 옴니케어의 일방적 합의 파기 및 팀장의 방관</p><p><strong>- 현상:</strong> '매출 수정' 업무의 수기 처리로 인한 막대한 비효율 발생</p><p><strong>- 본질:</strong> 단순 비협조를 넘어, 공식적인 약속을 무시하는 신뢰의 문제</p></div></div>
-                        </div>
-                        <div class="border border-gray-200 rounded-lg">
-                            <button class="accordion-btn w-full flex justify-between items-center p-4 text-left font-semibold text-lg text-gray-700 bg-gray-50 hover:bg-gray-100">
-                                <span><i class="fas fa-comments-slash mr-3 text-yellow-500"></i>리더십 부재와 소통 단절</span>
-                                <i class="fas fa-chevron-down transition-transform"></i>
-                            </button>
-                            <div class="accordion-content bg-white"><div class="p-4 border-t border-gray-200 text-gray-600"><p><strong>- 원인:</strong> 팀장의 면담 거부 및 특정 직원에게 문제 전가</p><p><strong>- 현상:</strong> 팀원의 심리적 부담 가중, 공식/비공식 소통 채널 완전 차단</p><p><strong>- 본질:</strong> 팀원 보호 및 문제 해결이라는 리더의 핵심 직무 유기</p></div></div>
-                        </div>
-                        <div class="border border-gray-200 rounded-lg">
-                            <button class="accordion-btn w-full flex justify-between items-center p-4 text-left font-semibold text-lg text-gray-700 bg-gray-50 hover:bg-gray-100">
-                                <span><i class="fas fa-shield-slash mr-3 text-purple-500"></i>내부 시스템의 기능 부전</span>
-                                <i class="fas fa-chevron-down transition-transform"></i>
-                            </button>
-                            <div class="accordion-content bg-white"><div class="p-4 border-t border-gray-200 text-gray-600"><p><strong>- 원인:</strong> 지속적인 문제 제기에도 '증거/수치화'만 요구하며 실질적 조치 미이행</p><p><strong>- 현상:</strong> 문제 해결에 대한 무력감과 조직에 대한 불신 팽배</p><p><strong>- 본질:</strong> 고충 처리 시스템이 직원을 보호하는 안전망이 아닌, 형식적 절차로 전락</p></div></div>
-                        </div>
-                     </div>
-                </div>
+                <article class="section">
+                    <h2>제6조 (준거법)</h2>
+                    <p>본 서약서의 해석 및 적용에 관하여는 대한민국 법률을 준거법으로 한다.</p>
+                </article>
 
-                <!-- Legal Panel -->
-                <div id="legal" class="content-panel">
-                    <h2 class="text-2xl font-bold mb-6 text-gray-700">법적 근거 및 책임 소재</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="card p-6 bg-white border-l-4 border-purple-500 rounded-r-lg">
-                            <h3 class="font-bold text-lg text-purple-800 mb-2">對 옴니케어 (계약 위반)</h3>
-                            <ul class="list-disc list-inside space-y-2 text-gray-600">
-                                <li><strong>신의성실의 원칙 (민법 제2조):</strong> 합의 파기, 정보 누락, 소통 차단 등은 신의칙에 반하는 행위.</li>
-                                <li><strong>계약상 협력의무 (판례):</strong> 운영팀의 업무 완수에 필수적인 정보제공 및 절차준수는 단순 시혜가 아닌 '협력의무'이며, 불이행은 계약 위반에 해당.</li>
-                            </ul>
-                        </div>
-                        <div class="card p-6 bg-white border-l-4 border-red-500 rounded-r-lg">
-                            <h3 class="font-bold text-lg text-red-800 mb-2">對 KMI (사용자 책임)</h3>
-                             <ul class="list-disc list-inside space-y-2 text-gray-600">
-                                <li><strong>직장 내 괴롭힘 방치 (근로기준법):</strong> 제3자(옴니케어)에 의한 괴롭힘 신고를 인지했음에도 조사/보호 조치를 취하지 않은 것은 명백한 법 위반.</li>
-                                <li><strong>안전배려의무 위반 (판례):</strong> 극심한 정신적 스트레스 상황을 인지하고도 방치한 것은 근로자의 건강을 보호해야 할 사용자의 의무를 다하지 않은 것.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+                <article class="section">
+                    <h2>제7조 (기타)</h2>
+                    <p>본 서약서는 서약인의 수만큼 총 4부를 작성하여, 서명 또는 날인한 후 각 서약인이 1부씩 보관한다.</p>
+                </article>
+
+                <section class="signature-section">
+                    <p class="signature-date"><strong>서약일: </strong></p>
+                    <p>본 서약서의 모든 내용을 숙독하고 이해하였으며, 이에 자발적인 의사로 동의하기에 아래와 같이 서명 또는 날인합니다.</p>
+                    
+                    <table class="signature-table">
+                        <thead>
+                            <tr>
+                                <th>소속/직책</th>
+                                <th>이름</th>
+                                <th>생년월일 (또는 사번)</th>
+                                <th>서명/날인</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>검진사업운영파트 / 파트장</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>검진사업운영파트 / 팀원</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>검진사업운영파트 / 팀원</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>검진사업운영파트 / 팀원</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+                
+            </main>
+        </div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const tabNav = document.getElementById('tab-nav');
-            const contentPanels = document.querySelectorAll('.content-panel');
-            
-            const logData = [
-                {
-                    title: "KMI재단_송기나주임_01022746160_20250730_170137",
-                    summary: "팀원 4명이 제기한 고충 처리에 대해, 경영진은 문제의 본질을 파악하지 못하고 ‘팀 해체 후 원 소속 복귀'라는 해결책을 제시함. 이는 고충 처리의 본래 목적인 '업무 환경 및 프로세스 시정 요구'와는 거리가 먼 대응이며, 이에 대한 팀원의 강한 반발과 향후 대응 계획을 논의하는 내용임.",
-                    sections: [ { title: "1. 핵심 갈등 및 불만 사항", icon: "😡", points: [ { subtitle: "가. 팀장(정근길)의 업무 태만 및 소통 부재", details: [ "<strong>１년 반 동안 문제 제기 묵살 (10:36 ~ 12:51):</strong> 지난 1년 반 동안 지속적으로 업무 문제를 제기하고 면담을 요청했지만, 팀장은 이를 무시하거나 제대로 된 피드백을 주지 않았음.", "<strong>고충 처리 후 급작스러운 대응 (05:17 ~ 07:16):</strong> 문제가 오랫동안 해결되지 않다가, 준법 경영팀에 정식으로 고충을 접수하자 반나절 만에 '팀 해체' 이야기가 나오는 상황에 대해 강한 불만을 표출함.", "<strong>책임 회피성 팀 해체 시도 (05:17 ~ 07:16):</strong> 팀장은 고충 처리를 제기한 팀원들을 해체시켜 자신을 향한 내부적인 문제 제기를 없애려는 의도를 가진 것으로 파악됨." ] }, { subtitle: "나. '옴니'와의 불공정한 업무 관계 및 책임 전가", details: [ "<strong>원칙 준수로 인한 부당한 공격 (34:06 ~ 39:49):</strong> 화자는 원칙대로 업무를 처리했음에도 불구하고, '광화문' 지점에서 집중적인 공격을 받았다고 주장. 이는 다른 팀원들이 '옴니'의 잘못된 요청을 비공식적으로 수정해준 것과 대비되는 상황.", "<strong>문제 해결 노력의 부재 (1:00:55 ~ 1:02:33):</strong> 팀장은 '광화문'이 왜 문제인지 파악하고 중재해야 했음에도, 이를 방치하며 오히려 화자의 문제로 몰아감.", "<strong>부당한 데이터 요구 (1:00:55 ~ 1:02:33):</strong> 문제 해결을 위해 '옴니' 측의 잘못을 증명할 데이터를 오히려 내부 팀원들에게 수치화하여 보고하라는 요구에 대해 부당함을 토로함." ] }, { subtitle: "다. 개인에 대한 부당한 처우 (승진 누락 등)", details: [ "<strong>불공정한 인사 평가 (39:58 ~ 44:50):</strong> '옴니'에서 재단으로 넘어오는 과정 및 이후에도 명백한 이유 없이 승진에서 누락되는 등 부당한 인사 처우를 받았다고 주장.", "<strong>업무 역량 불인정 (34:06 ~ 39:49):</strong> 본인의 업무 역량과 직급(밴드)이 부당하게 평가절하되었으며, 이에 대한 소명과 사과를 요구." ] } ] }, { title: "2. 경영진의 제안과 화자의 반박", icon: "🗣️", points: [ { subtitle: "가. 팀 해체 제안", details: [ "<strong>경영진 제안:</strong> 고충을 제기한 팀을 해체하고, 원래 소속이었던 센터로 복귀시키는 방안 제시.", "<strong>화자의 반박 (15:24 ~ 21:09, 1:05:48 ~ 1:08:05):</strong> 문제의 본질을 왜곡하고, 문제 제기 인원을 제거하려는 시도로 간주. 고충 처리의 본래 취지(업무 시정 요구)와 어긋나므로 절대 수용 불가." ] }, { subtitle: "나. '옴니' 출신 팀장 영입 제안", details: [ "<strong>경영진 제안:</strong> 외부 업체인 '옴니'에서 팀장을 데려와 앉히는 방안 제시.", "<strong>화자의 반박 (22:36 ~ 27:54):</strong> 팀원들을 더욱 억누르려는 의도로 해석하며 강하게 반발. 업무를 제대로 파악하고 팀의 입장에 서 줄 수 있는 내부 팀장급 인력이 필요하다고 주장." ] } ] }, { title: "3. 향후 대응 계획 (Action Plan)", icon: "🚀", points: [ { subtitle: "", details: [ "<strong>1:4 공식 면담 요청:</strong> 개인 면담 거부. 팀원 4명과 정근길 팀장 1명이 공식적인 회의실에서 면담할 것을 요구. (조건: '정지우' 배석 절대 불가. 관련 시간: 53:33 ~ 56:08)", "<strong>논의 재시작 및 오류 시정:</strong> 현재 논의가 고충 처리의 본질을 벗어났으므로, 모든 개별 면담을 중단. 월요일에 서 팀장(준법경영팀)과의 면담부터 다시 시작하여 잘못 전달된 부분을 바로잡을 것을 계획. (관련 시간: 1:12:00 ~ 1:16:08)", "<strong>월요일 팀 내부 회의:</strong> 경영진과의 면담에 앞서, 월요일에 팀원 4명이 모여 입장을 통일하고 구체적인 대응 방안을 논의하기로 함. (관련 시간: 1:08:05 ~ 1:11:49)" ] } ] } ]
-                },
-                {
-                    title: "KMI재단_송기나주임_01022746160_20250731_080912",
-                    summary: "고충 처리를 위한 공식 문서 제출 방식을 두고 팀원 간에 논의가 오가는 상황. 화자는 팀장(정근길)의 요구가 문제의 본질을 흐리고 있으며, 개별적인 의견 취합보다는 팀의 통일된 핵심 요구사항(업무 협의 권한 부여)을 명확히 전달해야 한다고 강하게 주장함.",
-                    sections: [ { title: "1. 핵심 논의: 요구 사항의 본질", icon: "😡", points: [ { subtitle: "가. '수치화'가 아닌 '협의 권한' 요구 (02:47 ~ 09:06)", details: [ "<strong>요구의 핵심:</strong> 팀의 요구는 개별 업무 항목을 일일이 보고하고 조율(수치화)해달라는 것이 아님. 문제 해결을 위해 '옴니'와 직접 협의할 수 있는 공식적인 권한을 달라는 것이 본질임.", "<strong>대안 제시:</strong> 만약 팀장(정근길)이 직접 협의를 진행할 수 없다면, 팀원들에게 그 권한을 위임해야 한다고 주장." ] }, { subtitle: "나. 팀장의 1년 반 동안의 업무 불이행 (09:18 ~ 13:00)", details: [ "<strong>명백한 책임:</strong> 팀장은 지난 1년 반 동안 '옴니'와의 업무 협의라는 본인의 역할을 제대로 수행하지 않았음.", "<strong>요구 사항의 정당성:</strong> 현재의 모든 문제는 팀장의 업무 불이행에서 비롯되었으므로, 팀의 '협의 권한' 요구는 정당하다고 강조." ] } ] }, { title: "2. 갈등 지점: 문서 제출 방식", icon: "🗣️", points: [ { subtitle: "가. 형식적인 문서 취합에 대한 반발 (00:00 ~ 01:33)", details: [ "<strong>팀장의 의도 의심:</strong> 화자는 휴가 중인 자신을 제외하고 팀원들의 의견을 개별적으로 취합하려는 팀장의 의도를 의심함. 이는 문제를 해결하기보다 책임 회피를 위한 형식적인 절차라고 비판.", "<strong>기존 자료 제출 주장:</strong> 새로운 문서를 만드는 대신, 지난 1년 반 동안 제출했던 주간 업무 보고 등 기존 자료들을 근거로 제출하면 충분하다고 주장." ] }, { subtitle: "나. 감정적 대응이 아님을 강조 (09:18 ~ 13:00)", details: [ "<strong>문제의 본질:</strong> 자신의 강한 어조는 감정적인 대응이 아니라, 1년 반 동안 해결되지 않은 문제에 대한 정당한 문제 제기임을 분명히 함.", "<strong>직접 소통 시도:</strong> 답답한 상황을 해결하기 위해, 다른 팀원들과 스피커폰으로 직접 통화하여 팀의 입장을 통일하겠다고 선언." ] } ] }, { title: "3. 향후 대응 계획 (Action Plan)", icon: "🚀", points: [ { subtitle: "", details: [ "<strong>요구사항 명료화 및 제출:</strong> \"우리는 '옴니'와의 업무를 위해 협의할 수 있는 권한을 원한다. 팀장은 1년 반 동안 그 역할을 하지 않았다.\" 이 두 가지 핵심 내용을 담아 문서를 제출할 것을 계획. (관련 시간: 11:10 ~ 11:38)", "<strong>팀원들과의 직접 소통:</strong> 파트장을 통해 의견을 전달하는 대신, 화자가 직접 다른 팀원들과 통화하여 현재 상황을 공유하고 통일된 의견을 정리하기로 함. (관련 시간: 09:21 ~ 10:29)", "<strong>휴가 중 업무 처리 거부:</strong> 화자는 자신이 휴가 중임을 명확히 했으며, 본인 부재 시에 중요 문서 작업을 진행하려는 것에 대해 강한 불만을 표하며 협조하지 않을 것임을 시사. (관련 시간: 08:01 ~ 09:01)" ] } ] } ]
-                },
-                {
-                    title: "KMI재단_이현지주임_01040939856_20250729_220545",
-                    summary: "고충 처리 접수 이후, 팀 내부에서 파트장(송기나)의 역할과 입장에 대한 혼란과 불만이 제기되는 상황. 화자는 파트장이 문제 해결에 적극적으로 나서지 않고 오히려 팀원들과 다른 입장을 보이는 것에 대해 강하게 비판하며, 이로 인한 내부 갈등과 향후 대응 방안을 논의함.",
-                    sections: [ { title: "1. 핵심 갈등: 파트장(송기나)의 역할 및 태도 문제", icon: "😡", points: [ { subtitle: "가. 소극적이고 모호한 태도 (17:34 ~ 22:47)", details: ["입장 불분명: 파트장은 \"정근길 입장도, 옴니 입장도 이해된다\"고 말하면서 정작 같은 팀원의 입장에 대해서는 공감하지 않는 태도를 보임.", "책임 회피: 문제 상황에 대해 \"잘 모르겠다\", \"전의를 상실했다\"는 말로 일관하며, 파트장으로서 문제 해결에 대한 의지를 보이지 않음.", "내부 분열 유발: 화자는 파트장이 팀의 입장을 대변하기는커녕, 오히려 개인의 곤란한 입장만 내세우며 팀의 단합을 해치고 있다고 판단함."] }, { subtitle: "나. 팀 결성 과정에서의 의문 (07:14 ~ 11:16)", details: ["상반된 진술: 팀장(정근길)은 팀을 꾸릴 때 파트장이 \"자신 있다\"고 해서 모든 것을 맡겼다고 말했으나, 파트장은 화자에게 이와 다른 뉘앙스로 이야기함.", "숨겨진 소통 의심: 화자는 팀장과 파트장 사이에 팀원들이 모르는 별도의 미팅이나 논의가 있었을 것이라고 강하게 의심하며, 녹음 파일을 통해 진실을 확인하고자 함."] }, { subtitle: "다. '감정적 대응' 프레임에 대한 반박 (22:54 ~ 26:01)", details: ["문제의 본질: 팀원들의 문제 제기는 '감정적인' 대응이 아니라, 1년 반 동안 업무적으로 부당한 대우를 받은 것에 대한 정당한 '업무적' 문제 제기임을 강조.", "책임 전가 비판: 오히려 파트장 본인이 '옴니' 측에 감정적으로 대응하며 비공식적으로 업무를 처리해왔기 때문에 문제가 더 커졌다고 비판함."] } ] }, { title: "2. 갈등 지점: 문제 해결 방식의 차이", icon: "🗣️", points: [ { subtitle: "가. '수치화' 요구에 대한 입장 차이 (00:00 ~ 02:16, 29:51 ~ 35:58)", details: ["파트장의 주장: 고충 처리를 위해서는 그동안의 문제점들을 '수치화'해서 제출하는 것이 맞았다고 주장.", "화자의 반박: 그동안 주간 업무 보고 등을 통해 꾸준히 문제를 보고했으므로, 새로운 수치화 작업은 불필요하며 이는 본질을 흐리는 요구라고 반박. 기존에 제출했던 자료를 근거로 제시하면 충분하다고 주장."] }, { subtitle: "나. 파트장 역할 수행 문제 (13:46 ~ 16:39)", details: ["역할 불이행: 화자는 파트장이 중간에서 문제 해결을 위해 노력하지 않고, 오히려 경영진의 입장에서 일을 축소하려 한다고 비판.", "파트장 교체 요구: 만약 파트장이 계속해서 역할을 수행하지 않을 것이라면, 파트장 직책을 내려놓고 업무를 제대로 아는 다른 사람으로 교체해달라고 요구해야 한다고 주장."] } ] }, { title: "3. 향후 대응 계획 (Action Plan)", icon: "🚀", points: [ { subtitle: "", details: ["파트장의 정확한 입장 확인: 파트장이 팀의 입장에 동의하는지, 아니면 회사의 입장에서 문제를 무마하려는 것인지 명확히 할 것을 요구. 만약 후자라면 팀에서 빠질 것을 요구할 계획. (관련 시간: 25:03 ~ 25:26)", "준법경영팀에 기존 자료 제출: 새로운 '수치화' 자료를 만드는 대신, 1월부터 매주 보고했던 '주간 업무 회의 보고' 자료를 모두 취합하여 준법경영팀에 제출하기로 함. (관련 시간: 31:00 ~ 32:35)", "파트장 역할에 대한 문제 제기: 노사 상생 위원회 등 공식적인 절차에서 파트장이 중간에서 정보를 제대로 전달하지 않았거나 역할을 다하지 않은 문제를 공론화할 것을 고려. (관련 시간: 20:39 ~ 21:10)"] } ] } ]
-                },
-                {
-                    title: "KMI재단_이현지주임_01040939856_20250729_224151",
-                    summary: "이전 통화에 이어, 파트장(송기나)의 태도에 대한 불만과 향후 대응 방안에 대한 논의가 계속됨. 특히, 문제 해결을 위한 자료 제출 방식을 두고 이견이 있으며, 화자는 파트장이 투명하게 정보를 공개하고 책임 있는 자세를 보여야 한다고 강력하게 주장함.",
-                    sections: [ { title: "1. 핵심 갈등: 파트장(송기나)의 책임 및 투명성 문제", icon: "😡", points: [ { subtitle: "가. 정보 비공개 및 회피적 태도 (01:46 ~ 04:40)", details: ["캥기는 태도: 파트장이 무언가 숨기는 것이 있고, 자신의 잘못이 공론화될 것을 우려하여 회피적인 태도를 보인다고 화자는 판단함.", "책임 전가: 화자는 파트장이 자신이 비공식적으로 처리해 온 문제들에 대해 책임을 져야 하며, 만약 팀에서 빠지겠다면 그 업무들을 모두 인수인계해야 한다고 주장함.", "회유 시도: 파트장이 화자를 2시간 가까이 붙잡고 이야기한 것은, 문제 해결보다는 자신의 입장을 방어하고 화자를 회유하려는 의도였다고 비판함."] }, { subtitle: "나. '감정적' 프레임의 재반박 (04:42 ~ 07:34)", details: ["문제의 본질: 1년 365일 똑같은 문제가 반복되는 상황에서, 목소리를 내는 사람을 '감정적'이라고 치부하고 침묵하는 사람은 '이성적'이라고 보는 시각 자체에 문제가 있다고 지적함.", "실장의 발언: \"수치화해서 주지 않으면 불만 없는 걸로 간주한다\"는 실장의 발언을 문제 삼으며, 이는 그동안의 지속적인 문제 제기를 묵살하는 것이라고 비판."] } ] }, { title: "2. 갈등 지점: 공식 자료 제출 방식", icon: "🗣️", points: [ { subtitle: "가. 주간 업무 보고의 정당성 (00:00 ~ 01:13)", details: ["공식적인 근거: '주간 업무 회의 보고'는 팀장과 실장에게 매주 보고된 공식적인 문서이므로, 이를 근거로 제출하는 것이 가장 타당하다고 주장함.", "파급력: 이 자료가 가장 파급력이 크며, 팀의 입장을 가장 잘 대변할 수 있는 자료라고 판단."] }, { subtitle: "나. 투명한 정보 공유 요구 (08:26 ~ 13:46)", details: ["공동 대응: 자료를 제출할 때, 파트장이 단독으로 처리하는 것이 아니라 팀원 전체가 공유하는 단체방을 통해 투명하게 진행할 것을 요구함.", "불신 표명: 파트장이 개별적으로 정보를 왜곡하거나 누락하여 보고할 가능성을 우려하며, 모든 과정을 팀원들이 알 수 있도록 해야 한다고 강조."] } ] }, { title: "3. 향후 대응 계획 (Action Plan)", icon: "🚀", points: [ { subtitle: "", details: ["주간 업무 보고 자료 제출: 어떤 자료를 제출할지 더 이상 논의하지 않고, 가장 파급력이 큰 '주간 업무 회의 보고' 자료를 취합하여 준법경영팀에 제출하기로 결정. (관련 시간: 01:46 ~ 02:34)", "파트장의 투명한 업무 처리 요구: 앞으로 모든 보고와 소통은 팀원 전체가 있는 단체방에서 투명하게 진행할 것을 파트장에게 요구하기로 함. (관련 시간: 10:43 ~ 11:28)", "파트장과의 대화 녹음 및 공유: 파트장의 정확한 생각과 입장을 파악하기 위해, 다음 통화 내용을 녹음하여 팀원들과 공유하고 대응 방안을 함께 논의하기로 함. (관련 시간: 12:22 ~ 13:08)"] } ] } ]
-                },
-                {
-                    title: "KMI재단_이현지주임_01040939856_20250730_182141",
-                    summary: "고충 처리에 대한 경영진의 답변으로 '팀 와해(해체)'가 거론되자, 화자가 이에 강하게 반발하며 문제의 근본 원인을 다시 한번 짚고 향후 대응 방식을 논의하는 내용.",
-                    sections: [ { title: "1. 핵심 갈등: 경영진의 '팀 와해' 제안과 정면 반박", icon: "😡", points: [ { subtitle: "가. 팀 와해 제안의 본질 파악 (00:02 ~ 03:12)", details: ["내부 공격 무력화 시도: 화자는 '팀 와해' 제안이 문제 해결이 아닌, 경영진을 향한 '내부 공격'을 없애려는 의도라고 정확히 파악하고 있음.", "윗선의 책임 추궁: \"윗사람들도 그렇게 얘기한다\"는 말에, 그 '윗사람'이 누구인지 정확히 밝힐 것을 요구하며 책임을 명확히 하려 함."] }, { subtitle: "나. '센터 복귀' 제안의 기만성 비판 (03:40 ~ 05:16)", details: ["조건부 제안의 부당함: \"센터로 돌아가면 아무 말도 하면 안 된다\"는 식의 전제 조건을 다는 것은 부당한 강요라고 비판.", "역제안: 만약 팀을 해체하고 센터로 보내고 싶다면, 문제 해결에 미온적이었던 '기획팀'부터 먼저 해체하라고 맞받아침."] } ] }, { title: "2. 갈등의 근본 원인 재확인", icon: "🗣️", points: [ { subtitle: "가. '광화문' 문제의 핵심 (00:02 ~ 03:12)", details: ["개인에 대한 표적 공격: '옴니'에서 분사할 때, 전국에서 유일하게 자신만 승진에서 누락된 것에 대한 보복성 조치로 '광화문'이 계속 문제 삼아졌다고 주장.", "원칙 준수의 역효과: 가장 원칙대로 업무를 처리했음에도 불구하고, 이것이 오히려 공격의 빌미가 되었다는 점에 대해 억울함을 토로."] }, { subtitle: "나. 팀장(정근길)의 명백한 직무유기 (00:02 ~ 03:12)", details: ["문제 방치: 팀장은 겸직 기간 동안 '옴니'가 왜 유독 '광화문'을 문제 삼는지 파악하고 중재했어야 함에도 이를 방관했으며, 이는 명백한 직무유기라고 비판.", "인권 침해 묵살: 자신의 메일이 감시당하는 등 인권 침해 소지가 있는 상황에 대해서도 아무런 조치를 취하지 않았다고 지적."] } ] }, { title: "3. 향후 대응 계획 (Action Plan)", icon: "🚀", points: [ { subtitle: "", details: ["1:4 공식 면담 원칙 고수: 팀을 분열시키려는 의도로 보이는 1:1 면담은 모두 거부하고, 반드시 팀장 1명과 팀원 4명이 함께 만나는 공식적인 자리만을 요구. (조건: '정지우'는 배석에서 제외할 것을 재차 강조. 관련 시간: 03:12 ~ 03:40)", "부재 시 논의 금지: 자신이 휴가 등으로 자리에 없는 동안에는 팀 관련 어떤 논의도 진행하지 말 것을 팀원들에게 신신당부함. (관련 시간: 05:01 ~ 05:16)", "시정 요구의 본질 재확인: 팀의 요구는 '팀 해체'가 아니라, 1년 반 동안 묵살당한 문제들에 대한 '시정'이었음을 명확히 하고, 왜 이런 결론이 나왔는지 월요일에 따져 묻기로 함. (관련 시간: 02:33 ~ 03:07)"] } ] } ]
-                },
-                {
-                    title: "KMI재단_이현지주임_01040939856_20250731_091643",
-                    summary: "고충 처리를 위한 공식 문서 작성 방향에 대해 팀원들이 논의하는 내용. 화자는 팀장(수장)의 역할 부재를 핵심 문제로 삼아야 한다고 주장하며, 문서의 초점이 '옴니'에 대한 불만이 아닌 '팀장'의 책임 문제로 명확히 맞춰져야 한다고 강조함.",
-                    sections: [ { title: "1. 핵심 갈등: 문서 작성의 초점과 방향", icon: "😡", points: [ { subtitle: "가. '팀장의 역할 부재'를 핵심으로 (00:00 ~ 01:52, 02:17 ~ 05:30)", details: ["문제의 본질: 현재 고충의 핵심은 '옴니'와의 협업 문제가 아니라, 그 문제를 중재하고 해결해야 할 팀장의 역할이 부재했다는 점임을 명확히 함.", "문서의 핵심 내용: 따라서 제출할 문서에는 팀장이 지난 1년 반 동안 ▲팀원과의 소통 부재 ▲업무 파악 노력 부족 ▲'옴니'와의 협의 역할 불이행 등 구체적으로 어떤 역할을 하지 않았는지를 명시해야 한다고 주장.", "'아무것도 안 했다'의 의미: 팀장이 출근해서 아무 일도 안 했다는 의미가 아니라, 팀 관리와 핵심 업무 협의라는 본질적인 역할을 수행하지 않았음을 지적."] }, { subtitle: "나. '팀 해체' 언급에 대한 대응 (06:52 ~ 07:21, 11:32 ~ 15:02)", details: ["위협으로 간주: 고충 처리를 신고하자 '팀 해체'가 언급된 것은, 업무 개선을 방해하고 내부 고발을 억누르려는 위협적인 언사로 받아들여졌다고 문서에 명시해야 한다고 주장.", "파트장의 책임: 실장이 '팀 해체'를 언급했을 때, 파트장이 팀을 보호하기 위해 아무런 반박도 하지 않은 것 또한 역할 부재의 증거라고 비판."] }, { subtitle: "다. 화자 부재 시의 문서 취합 시도 비판 (11:32 ~ 15:02, 16:04 ~ 21:23)", details: ["의도 의심: 화자는 자신이 휴가 중인 상황을 이용해, 상대적으로 의견 표출이 적은 다른 팀원들로부터 문서를 받아 문제를 자신에게 유리한 방향(옴니와의 갈등)으로 몰아가려는 의도가 있다고 의심.", "투명성 요구: 1:1 면담이나 개별적인 문서 취합이 아닌, 팀원 전체가 참여하는 투명한 방식으로 논의하고 문서를 작성해야 한다고 주장."] } ] }, { title: "2. 갈등 지점: 책임 소재와 증거 제출", icon: "🗣️", points: [ { subtitle: "가. 책임의 주체는 '팀장' (21:40 ~ 24:54)", details: ["잘못된 문제 제기 방식: 문제가 발생했을 때, 원인 제공자인 팀장을 분리 조치하는 것이 아니라 오히려 피해자인 팀원들에게 문제 사유를 문서로 작성해 제출하라는 방식 자체가 잘못되었다고 비판.", "직접 제출 거부: 따라서 문제의 원인인 팀장에게 직접 문서를 제출하는 것은 거부해야 하며, 준법경영팀 등 제3의 부서에 제출해야 한다고 주장."] }, { subtitle: "나. 증거 자료의 명확화 (26:57 ~ 33:17)", details: ["구체적인 증거 제시: ▲3월에 화자가 협의해 온 내용을 팀장이 임의로 엎은 사실 ▲7월 회의에서 약속한 내용이 지켜지지 않은 사실 등 구체적인 사례와 증거(메일 등)를 첨부하여 팀장의 역할 부재를 증명해야 한다고 제안.", "문서의 제목: 문서의 제목을 \"검진 사업 운영 파트 팀장에 대한 역할 부재\"로 명확히 하여, 문제의 핵심이 무엇인지 분명히 해야 한다고 강조."] } ] }, { title: "3. 향후 대응 계획 (Action Plan)", icon: "🚀", points: [ { subtitle: "", details: ["문서 작성 방향 통일: '옴니'에 대한 불만이 아닌, '팀장의 역할 부재'에 초점을 맞춰 문서를 작성하기로 팀원들과 합의. (관련 시간: 31:01 ~ 31:40)", "증거 자료 취합 및 정리: 팀장의 역할 부재를 입증할 수 있는 과거 메일, 회의록 등 구체적인 증거 자료를 취합하고, 페이지 번호와 머리말을 수기로 작성하여 누락이나 위조가 없도록 준비. (관련 시간: 27:18 ~ 28:24)", "공식적인 문제 제기: 작성된 문서를 팀장에게 제출하는 것이 아니라, 준법경영팀이나 서영석 팀장에게 직접 제출하여 공식적으로 문제 제기할 것을 계획. (관련 시간: 29:34 ~ 30:02)"] } ] } ]
-                },
-                {
-                    title: "KMI재단_이현지주임_01040939856_20250731_162121",
-                    summary: "고충 처리 접수 이후 팀 내부의 갈등이 심화되는 상황. 특히 파트장(송기나)이 팀장(정근길) 및 경영진의 입장에 동조하는 듯한 태도를 보이자, 다른 팀원들이 이에 강하게 반발하며 책임 소재와 향후 대응 방안을 논의함.",
-                    sections: [ { title: "1. 핵심 갈등: 파트장의 입장 변화와 내부 분열", icon: "😡", points: [ { subtitle: "가. 파트장의 책임 회피 및 동조 (05:22 ~ 09:19)", details: ["입장 변화: 파트장은 다른 팀원(혜윤)에게 \"감정적으로 말하지 말라\"고 하는 등, 문제 제기를 한 팀원들을 비판하고 경영진의 입장을 대변하는 듯한 태도를 보임.", "책임 전가 시도: 화자는 파트장이 팀장에게 \"지우 쌤이 수치화를 거부하고 준법경영팀에 바로 접수해서 일이 이렇게 됐다\"는 식으로 책임을 전가했다고 비판.", "무마 시도: 파트장이 다른 팀원들을 공격하고 싶지 않다는 이유로 사태를 조용히 무마하려 한다고 화자는 판단함."] }, { subtitle: "나. 팀장 및 경영진의 책임 회피 전략 (09:28 ~ 13:15, 31:38 ~ 34:05)", details: ["파트장 자질 문제로 몰아가기: 팀장과 실장이 파트장의 '자질 부족' 문제로 책임을 돌리려 한다는 정황이 포착됨.", "팀 분열 유도: 팀장은 회식 자리에서 다른 팀원(혜윤)의 의견만을 듣고 '팀 해체'가 좋겠다는 결론을 내리는 등, 팀원들을 이간질하여 내부 분열을 유도하고 있음.", "내부 고발자 제거 의도: 이 모든 상황은 결국 내부 문제를 제기한 팀원들을 고립시키고 제거하려는 의도라고 화자는 분석함."] }, { subtitle: "다. '팀 해체' 및 '외부 팀장 초빙' 제안의 부당함 (22:34 ~ 26:05)", details: ["위협적인 제안: 1안으로 '팀 해체', 2안으로 '옴니에서 파견직 팀장 초빙'을 제안한 것은, 문제 해결이 아니라 팀원들을 더 억압하고 감시하려는 의도로 받아들여짐.", "정면 반박: 화자는 \"업무를 제대로 하려고 문제 제기를 했는데, 왜 우리를 더 짓누르려 하느냐\"며 제안의 부당함을 강하게 비판."] } ] }, { title: "2. 갈등 지점: '팩트'와 '감정'의 대립", icon: "🗣️", points: [ { subtitle: "가. '말투'와 '팩트'의 분리 (00:00 ~ 04:51, 16:55 ~ 22:25)", details: ["팩트 기반의 문제 제기: 화자는 자신의 말투나 톤이 강했던 것은 사실이나, 주장한 내용 자체는 모두 거짓이나 과장이 없는 '팩트'임을 강조.", "본질 흐리기: 상대방이 문제의 본질 대신 '말이 세다', '톤이 높다'며 감정적인 부분만 문제 삼는 것은 논점을 흐리려는 의도라고 비판."] }, { subtitle: "나. 침묵과 발언의 불공정한 평가 (16:55 ~ 22:25)", details: ["불공정한 잣대: 문제를 제기하며 목소리를 낸 사람은 '감정적'이라고 비난받고, 침묵하거나 동조하는 사람은 아무런 비판을 받지 않는 상황의 불합리함을 지적.", "파트장의 역할 부재: 파트장이 회의 자리에서 침묵으로 일관한 것은, 결국 문제 해결을 방관하고 자신의 안위만 챙긴 것이라고 비판."] } ] }, { title: "3. 향후 대응 계획 (Action Plan)", icon: "🚀", points: [ { subtitle: "", details: ["파트장에 대한 압박 및 책임 추궁: 파트장이 팀장에게 유리하게 전달한 내용과 숨기고 있는 사실들을 밝혀내고, 파트장으로서의 책임을 다할 것을 계속해서 요구. (관련 시간: 16:40 ~ 16:50)", "팀 분열 시도에 대한 공동 대응: 팀장이나 파트장이 특정 팀원과 개별적으로 접촉하여 팀을 분열시키려는 시도를 경계하고, 모든 논의는 팀원 전체가 공유하는 방식으로 진행. (관련 시간: 16:09 ~ 16:38)", "공식 문서 제출 원칙 고수: 팀장에게 개별적으로 문서를 제출하는 것이 아니라, 팀의 통일된 의견을 담은 공식 문서를 준법경영팀 등 제3자에게 제출한다는 원칙을 고수. (관련 시간: 33:21 ~ 34:02)"] } ] } ]
-                },
-                {
-                    title: "KMI재단_이현지주임_01040939856_20250731_181615",
-                    summary: "팀 내부의 갈등이 최고조에 달한 상황. 팀장(정근길)과 파트장(송기나)이 팀원들을 분열시키고 책임을 회피하려는 전략이 노골화되자, 나머지 팀원들은 이들의 의도를 파악하고 직접적인 반격과 대응 전략을 논의함. 특히 파트장의 역할과 책임 문제를 정면으로 다루기로 결정함.",
-                    sections: [ { title: "1. 핵심 갈등: 팀장과 파트장의 책임 회피 및 내부 분열 전략", icon: "😡", points: [ { subtitle: "가. 파트장의 완전한 입장 선회 및 책임 회피 (01:33 ~ 05:28, 51:16 ~ 53:43)", details: ["노골적인 책임 회피: 파트장은 자신이 문제의 중심에 서게 될 것을 우려하여 \"빠지는 게 맞는 것 같다\"며 반복적으로 책임을 회피하려는 태도를 보임.", "팀원 탓으로 돌리기: \"지우 쌤이 너무 막 나가는 것 같다\", \"아무것도 협의된 게 없다고 말해서 당황했다\"는 등, 문제의 원인을 동료 팀원에게 전가하려는 시도가 뚜렷해짐.", "팀장에게 동조: 화자는 파트장이 팀장에게 완전히 회유(구워삶아짐)되었으며, 이제는 팀원들의 입장을 대변하는 것이 아니라 팀장의 편에 서서 상황을 무마하려 한다고 판단."] }, { subtitle: "나. 팀장의 노골적인 내부 분열 및 고발자 제거 전략 (14:59 ~ 16:02, 48:59 ~ 50:19)", details: ["목표는 내부 고발자 제거: 팀장의 모든 행동(팀 해체, 외부 팀장 영입, 1:1 면담 제안 등)은 결국 문제를 제기한 내부 고발자들을 와해시키고 제거하려는 명확한 의도를 가지고 있다고 분석.", "가스라이팅 및 책임 전가: 팀장은 파트장에게 \"네가 팀원 관리를 못 해서 이렇게 됐다\"는 식으로 가스라이팅하며 모든 책임을 파트장에게 떠넘기려 하고, 파트장은 그 전략에 넘어가고 있음.", "박쥐 같은 태도: 화자는 파트장이 팀장과 팀원들 사이를 오가며 양쪽에 유리한 말을 전달하고 자신의 입지를 챙기려는 '박쥐' 같은 행동을 하고 있다고 강하게 비판."] } ] }, { title: "2. 갈등 지점: 면담 방식(1:1 vs 1:4)과 그 의도", icon: "🗣️", points: [ { subtitle: "가. 1:1 면담의 숨은 의도 (40:06 ~ 43:49)", details: ["회유와 각개격파: 1:1 면담은 팀원들을 개별적으로 만나 회유하거나 압박하여 팀의 단합을 깨고, 각자의 진술을 왜곡하려는 의도가 숨어있다고 판단.", "화자의 1:1 면담 역제안: 화자는 오히려 1:1 면담을 통해 팀장에게 \"이 모든 사태의 시작은 파트장이 퇴사까지 고민하며 힘들어해서 시작된 것\"이라고 직접 알려, 팀장과 파트장 사이를 이간질하는 역공을 펼치고 싶어 함."] }, { subtitle: "나. 1:4 면담의 필요성 (54:48 ~ 56:24)", details: ["진실 규명: 팀원 4명과 팀장, 파트장이 모두 있는 자리에서 각자의 주장을 대면하고 진실을 밝혀야 한다고 주장.", "파트장의 위선 폭로: 특히 파트장이 모두의 앞에서 어떤 태도를 보이는지, 자신의 책임을 어떻게 회피하는지를 직접 확인하고 싶다는 의도가 강함.", "공식적인 기록: 1:4 면담을 통해 오가는 모든 대화를 공식적인 기록으로 남겨, 추후에 말이 바뀌는 것을 방지해야 한다고 판단."] } ] }, { title: "3. 향후 대응 계획 (Action Plan)", icon: "🚀", points: [ { subtitle: "", details: ["면담 전략 최종 조율: 1:1 면담과 1:4 면담의 장단점을 고려하여, 팀장과 파트장을 가장 효과적으로 압박하고 진실을 규명할 수 있는 최종 면담 방식을 결정하기로 함. (관련 시간: 59:02 ~ 1:01:17)", "파트장의 책임 문제 공식화: 고충 처리의 핵심 원인 중 하나로 '파트장의 역할 부재 및 책임 회피'를 명시하고, 파트장이 ▲팀원 보호 실패 ▲정보 왜곡 전달 ▲잘못된 상황 판단 등의 문제를 일으켰음을 공식적으로 제기하기로 함. (관련 시간: 50:19 ~ 50:50)", "모든 대화 및 회의 녹음: 앞으로 팀장, 파트장과 관련된 모든 대화와 회의는 증거 확보를 위해 반드시 녹음하여 팀원 간에 공유하기로 함. (관련 시간: 31:28 ~ 32:10)"] } ] } ]
-                },
-                {
-                    title: "KMI재단_이현지주임_01040939856_20250731_203004",
-                    summary: "팀 내부의 갈등이 최고조에 달한 상황. 팀장(정근길)과 파트장(송기나)이 팀원들을 분열시키고 책임을 회피하려는 전략이 노골화되자, 나머지 팀원들은 이들의 의도를 파악하고 직접적인 반격과 대응 전략을 논의함. 특히 파트장의 역할과 책임 문제를 정면으로 다루기로 결정함.",
-                    sections: [ { title: "1. 핵심 갈등: 팀장과 파트장의 책임 회피 및 내부 분열 전략", icon: "😡", points: [ { subtitle: "가. 파트장의 완전한 입장 선회 및 책임 회피 (01:33 ~ 05:28, 51:16 ~ 53:43)", details: ["노골적인 책임 회피: 파트장은 자신이 문제의 중심에 서게 될 것을 우려하여 \"빠지는 게 맞는 것 같다\"며 반복적으로 책임을 회피하려는 태도를 보임.", "팀원 탓으로 돌리기: \"지우 쌤이 너무 막 나가는 것 같다\", \"아무것도 협의된 게 없다고 말해서 당황했다\"는 등, 문제의 원인을 동료 팀원에게 전가하려는 시도가 뚜렷해짐.", "팀장에게 동조: 화자는 파트장이 팀장에게 완전히 회유(구워삶아짐)되었으며, 이제는 팀원들의 입장을 대변하는 것이 아니라 팀장의 편에 서서 상황을 무마하려 한다고 판단."] }, { subtitle: "나. 팀장의 노골적인 내부 분열 및 고발자 제거 전략 (14:59 ~ 16:02, 48:59 ~ 50:19)", details: ["목표는 내부 고발자 제거: 팀장의 모든 행동(팀 해체, 외부 팀장 영입, 1:1 면담 제안 등)은 결국 문제를 제기한 내부 고발자들을 와해시키고 제거하려는 명확한 의도를 가지고 있다고 분석.", "가스라이팅 및 책임 전가: 팀장은 파트장에게 \"네가 팀원 관리를 못 해서 이렇게 됐다\"는 식으로 가스라이팅하며 모든 책임을 파트장에게 떠넘기려 하고, 파트장은 그 전략에 넘어가고 있음.", "박쥐 같은 태도: 화자는 파트장이 팀장과 팀원들 사이를 오가며 양쪽에 유리한 말을 전달하고 자신의 입지를 챙기려는 '박쥐' 같은 행동을 하고 있다고 강하게 비판."] } ] }, { title: "2. 갈등 지점: 면담 방식(1:1 vs 1:4)과 그 의도", icon: "🗣️", points: [ { subtitle: "가. 1:1 면담의 숨은 의도 (40:06 ~ 43:49)", details: ["회유와 각개격파: 1:1 면담은 팀원들을 개별적으로 만나 회유하거나 압박하여 팀의 단합을 깨고, 각자의 진술을 왜곡하려는 의도가 숨어있다고 판단.", "화자의 1:1 면담 역제안: 화자는 오히려 1:1 면담을 통해 팀장에게 \"이 모든 사태의 시작은 파트장이 퇴사까지 고민하며 힘들어해서 시작된 것\"이라고 직접 알려, 팀장과 파트장 사이를 이간질하는 역공을 펼치고 싶어 함."] }, { subtitle: "나. 1:4 면담의 필요성 (54:48 ~ 56:24)", details: ["진실 규명: 팀원 4명과 팀장, 파트장이 모두 있는 자리에서 각자의 주장을 대면하고 진실을 밝혀야 한다고 주장.", "파트장의 위선 폭로: 특히 파트장이 모두의 앞에서 어떤 태도를 보이는지, 자신의 책임을 어떻게 회피하는지를 직접 확인하고 싶다는 의도가 강함.", "공식적인 기록: 1:4 면담을 통해 오가는 모든 대화를 공식적인 기록으로 남겨, 추후에 말이 바뀌는 것을 방지해야 한다고 판단."] } ] }, { title: "3. 향후 대응 계획 (Action Plan)", icon: "🚀", points: [ { subtitle: "", details: ["면담 전략 최종 조율: 1:1 면담과 1:4 면담의 장단점을 고려하여, 팀장과 파트장을 가장 효과적으로 압박하고 진실을 규명할 수 있는 최종 면담 방식을 결정하기로 함. (관련 시간: 59:02 ~ 1:01:17)", "파트장의 책임 문제 공식화: 고충 처리의 핵심 원인 중 하나로 '파트장의 역할 부재 및 책임 회피'를 명시하고, 파트장이 ▲팀원 보호 실패 ▲정보 왜곡 전달 ▲잘못된 상황 판단 등의 문제를 일으켰음을 공식적으로 제기하기로 함. (관련 시간: 50:19 ~ 50:50)", "모든 대화 및 회의 녹음: 앞으로 팀장, 파트장과 관련된 모든 대화와 회의는 증거 확보를 위해 반드시 녹음하여 팀원 간에 공유하기로 함. (관련 시간: 31:28 ~ 32:10)"] } ] } ]
-                },
-                {
-                    title: "KMI재단_이현지주임_01040939856_20250731_211044",
-                    summary: "팀의 공식적인 대응 방식을 최종적으로 조율하는 내용. 팀원들은 파트장(송기나)의 태도 변화와 거짓말을 확인하고, 더 이상 개인적인 감정 소모 없이 형식적인 절차를 통해 문제를 해결하기로 의견을 모음.",
-                    sections: [ { title: "1. 핵심 갈등: 파트장(송기나)의 신뢰도 문제", icon: "😡", points: [ { subtitle: "가. 지속적인 거짓말과 말 바꾸기 (03:30 ~ 05:29)", details: ["신뢰 상실: 화자는 파트장이 과거부터 거짓말을 자주 해왔다고 판단하며, 현재 사태에 대한 그의 발언 또한 신뢰할 수 없다고 단정함.", "의도 파악: 파트장의 모든 행동은 결국 자신의 안위를 지키고 책임을 회피하려는 의도에서 비롯된 것으로 분석함."] }, { subtitle: "나. 책임 회피를 위한 발 빼기 시도 (00:00 ~ 01:29)", details: ["분리 시도: 파트장이 팀의 공동 대응에서 발을 빼려 할 가능성이 높다고 예측.", "증거 확보: 만약 파트장이 입장을 바꿀 경우를 대비하여, 그가 이전에 했던 발언이나 단체방에 올린 공지 등을 증거로 확보해둬야 한다고 논의함."] } ] }, { title: "2. 갈등 지점: 공식 대응 방식 최종 결정", icon: "🗣️", points: [ { subtitle: "가. 형식적 절차의 중요성 (00:00 ~ 01:29)", details: ["초기 대응은 4인 공동으로: 문제 제기의 시작은 팀원 4명 전체의 공식적인 의견임을 명확히 하기 위해, 첫 회의나 면담은 반드시 4명이 함께 해야 한다고 결정.", "이탈자 발생 시 대응: 만약 첫 회의 이후에 특정 팀원(파트장)이 빠지겠다고 하면, 그 이후부터는 남은 인원만으로 대응을 이어가기로 함. 이는 개인의 변심으로 인해 팀 전체의 정당성이 훼손되는 것을 막기 위함."] }, { subtitle: "나. 감정적 대응 자제 (01:32 ~ 03:25)", details: ["전략적 태세 전환: 더 이상 분노하거나 감정적으로 대응하는 것이 문제 해결에 도움이 되지 않는다고 판단.", "이성적 대응: 앞으로는 철저히 사실과 증거에 기반하여 이성적으로 대응하며, 상대방의 전략을冷静하게 분석하고 역이용하는 '머리싸움'을 준비하기로 함."] } ] }, { title: "3. 향후 대응 계획 (Action Plan)", icon: "🚀", points: [ { subtitle: "", details: ["초기 대응은 4인 공동으로 진행: 월요일에 있을 면담 등 초기 대응은 반드시 팀원 4명 전원이 참여하여 팀의 단일된 입장을 보여주기로 함. (관련 시간: 00:08 ~ 00:27)", "증거 자료 확보 및 백업: 파트장의 말 바꾸기에 대비하여, 그동안의 단체방 대화 내용, 공유된 문서 등을 모두 캡처하고 백업해두기로 함. (관련 시간: 00:32 ~ 00:44)", "모든 문서 보안 해제 및 공유: 고충 처리와 관련된 모든 문서는 팀원 간에 투명하게 공유하기 위해, 보안 설정을 모두 해제하여 전달할 것을 요청. (관련 시간: 07:34 ~ 07:44)"] } ] } ]
-                },
-                 {
-                    title: "KMI재단_이현지주임_01040939856_20250731_230459",
-                    summary: "팀장(정근길)과 파트장(송기나)의 책임 회피 및 내부 분열 시도가 노골화되면서, 이들을 '가해자 2명'으로 규정하고 대응 전략을 논의함. 특히, 파트장이 문제의 시작점이었음을 폭로하여 팀장과 파트장 사이를 이간질하고, 오랜 시간 묵살되었던 개인적인 불이익(승진 누락 등)까지 공론화하여 전세를 역전시키려는 구체적인 계획을 세우는 내용.",
-                    sections: [ { title: "1. 핵심 갈등: '가해자 2명'의 책임 전가와 내부 분열 전략", icon: "😡", points: [ { subtitle: "가. 파트장의 완전한 배신과 책임 전가 (05:30 ~ 10:09, 32:43 ~ 34:15)", details: ["문제의 시발점 은폐: 파트장은 자신이 퇴사까지 고민하며 힘들어했던 것이 고충 처리의 시작점이었음을 숨기고, 오히려 다른 팀원(지우 쌤)이 사태를 주도하고 과격하게 몰아간 것처럼 상황을 왜곡하여 전달함.", "'된 게 없다' 발언 왜곡: 화자가 실장 앞에서 말한 \"옴니와의 협의가 된 게 없다\"는 발언을, 마치 \"KMI 내부적으로 아무것도 된 게 없다\"는 의미로 왜곡하여 팀장과 다른 팀원에게 전달하며 화자를 고립시키려 함.", "책임 회피를 위한 발 빼기: 자신의 잘못이 드러날 것을 우려하여 \"자기는 빠지는 게 맞는 것 같다\"는 말을 반복하며, 팀의 공동 대응에서 이탈하려는 모습을 보임."] }, { subtitle: "나. 팀장의 '파트장 팽하기' 및 책임 축소 전략 (14:59 ~ 18:42)", details: ["파트장에게 책임 전가: 팀장은 \"파트장을 믿고 맡겼는데, 제대로 보고받지 못했고 팀원 관리가 안 됐다\"는 논리로 모든 책임을 파트장에게 떠넘기려는 의도가 명확함.", "내부 고발자 제거: 팀 해체, 외부 팀장 영입 등의 제안은 결국 문제를 제기한 내부 고발자들을 와해시키고 자신에게 가해지는 공격을 무력화하려는 최종 목표를 가지고 있음."] } ] }, { title: "2. 갈등 지점: 전세 역전을 위한 핵심 전략", icon: "🗣️", points: [ { subtitle: "가. 1:1 면담의 전략적 활용: 이간계 (40:24 ~ 45:51, 50:19 ~ 53:05)", details: ["목표: 1:1 면담을 통해 팀장에게 \"이 모든 일은 송기나 파트장이 퇴사까지 생각하며 울 정도로 힘들어해서 시작된 것\"이라고 폭로.", "기대 효과: 팀장이 파트장에게 속았다고 생각하게 만들어 둘 사이의 신뢰 관계를 깨뜨리고, 파트장이 더 이상 발을 뺄 수 없도록 코너에 몰아넣는 효과를 노림."] }, { subtitle: "나. 개인의 불이익(밴드 문제) 공론화 (45:52 ~ 53:05)", details: ["단순 업무 문제를 넘어선 인권 문제: '옴니' 시절부터 이어진 부당한 승진 누락(밴드 문제)과 인사 평가 문제를 공식적으로 제기.", "정당성 확보: 이는 단순한 업무 불만이 아니라, 특정 개인에 대한 지속적인 괴롭힘과 불이익이 있었음을 증명하여 고충 처리의 정당성을 강화하려는 전략."] }, { subtitle: "다. 파트장의 '허수아비' 역할 폭로 (09:38 ~ 10:34)", details: ["무능함 지적: 파트장이 실질적인 권한이나 역할 없이 팀장에게 이용당하는 '허수아비'에 불과했음을 지적.", "자질 문제 제기: 팀원 보호, 의견 전달 등 파트장으로서의 기본적인 역할을 전혀 수행하지 못한 '자질'의 문제를 정면으로 제기할 것을 계획."] } ] }, { title: "3. 향후 대응 계획 (Action Plan)", icon: "🚀", points: [ { subtitle: "", details: ["'가해자 2명'에 대한 분리 대응 전략 실행: 팀장과 파트장을 '한 팀'이 아닌 '개별 가해자'로 보고, 1:1 면담 등을 통해 서로를 불신하게 만드는 이간계 전략을 실행하기로 함. (관련 시간: 57:11 ~ 58:42)", "모든 증거 자료 총정리: ▲파트장의 발언이 담긴 녹취록 ▲팀장의 책임 회피 정황 ▲개인의 부당한 인사 처우 관련 자료 등 모든 증거를 취합하여 면담 및 공식 절차에 대비. (관련 시간: 26:19 ~ 28:22)", "최종 목표 재설정: 파트장 교체 및 팀장 징계: 단순한 업무 개선을 넘어, 자질 없는 파트장을 교체하고 팀장에게 공식적인 징계를 받게 하는 것을 최종 목표로 설정하고 대응 수위를 높이기로 함. (관련 시간: 29:27 ~ 31:43)"] } ] } ]
-                }
-            ];
-
-            const logsContainer = document.getElementById('logs-accordion-container');
-            if (logsContainer) {
-                logData.forEach(log => {
-                    const logElement = document.createElement('div');
-                    logElement.className = 'border border-gray-200 rounded-lg';
-                    
-                    let sectionsHtml = '';
-                    log.sections.forEach(section => {
-                        let pointsHtml = '';
-                        section.points.forEach(point => {
-                            let detailsHtml = point.details.map(detail => `<li>${detail}</li>`).join('');
-                            pointsHtml += `<h5 class="font-semibold text-gray-800 mt-4 mb-2">${point.subtitle}</h5><ul class="list-disc list-inside space-y-2 pl-4 text-gray-600">${detailsHtml}</ul>`;
-                        });
-                        sectionsHtml += `<div class="mt-4"><h4 class="text-lg font-bold text-gray-800">${section.icon} ${section.title}</h4>${pointsHtml}</div>`;
-                    });
-
-                    logElement.innerHTML = `
-                        <button class="accordion-btn w-full flex justify-between items-center p-4 text-left font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100">
-                            <span><i class="fas fa-phone-alt mr-3 text-blue-500"></i>${log.title}</span>
-                            <i class="fas fa-chevron-down transition-transform"></i>
-                        </button>
-                        <div class="accordion-content bg-white">
-                            <div class="p-4 border-t border-gray-200">
-                                <p class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-400 text-blue-800 rounded-r-lg"><strong>💡 상황 요약:</strong> ${log.summary}</p>
-                                ${sectionsHtml}
-                            </div>
-                        </div>
-                    `;
-                    logsContainer.appendChild(logElement);
-                });
-            }
-
-            // Generic Accordion functionality
-            document.body.addEventListener('click', (e) => {
-                const btn = e.target.closest('.accordion-btn');
-                if (btn) {
-                    const content = btn.nextElementSibling;
-                    const icon = btn.querySelector('.fa-chevron-down');
-                    const accordionContainer = btn.closest('.space-y-4, .space-y-2');
-                    
-                    const isOpening = !content.style.maxHeight;
-
-                    // Close all other accordions in the same container
-                    if (accordionContainer) {
-                        accordionContainer.querySelectorAll('.accordion-content').forEach(item => {
-                            if (item !== content) {
-                                item.style.maxHeight = null;
-                                const otherIcon = item.previousElementSibling.querySelector('.fa-chevron-down');
-                                if(otherIcon) otherIcon.classList.remove('rotate-180');
-                            }
-                        });
-                    }
-
-                    // Open/close the clicked one
-                    if (isOpening) {
-                        content.style.maxHeight = content.scrollHeight + "px";
-                        if(icon) icon.classList.add('rotate-180');
-                    } else {
-                        content.style.maxHeight = null;
-                        if(icon) icon.classList.remove('rotate-180');
-                    }
-                }
-            });
-
-            // Tab functionality
-            tabNav.addEventListener('click', (e) => {
-                const tabButton = e.target.closest('.tab-btn');
-                if (tabButton) {
-                    const tabId = tabButton.dataset.tab;
-
-                    tabNav.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-                    tabButton.classList.add('active');
-
-                    contentPanels.forEach(panel => {
-                        panel.classList.remove('active');
-                        if (panel.id === tabId) {
-                            panel.classList.add('active');
-                        }
-                    });
-                }
-            });
-
-            // Chart.js Sentiment Analysis
-            const ctx = document.getElementById('sentimentChart');
-            if(ctx) {
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['7/29(초기)', '7/30(중간)', '7/31(심화)', '7/31(최종)'],
-                        datasets: [
-                            {
-                                label: '불만/분노',
-                                data: [6, 8, 7, 9],
-                                borderColor: 'rgba(239, 68, 68, 1)',
-                                backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                                fill: true,
-                                tension: 0.3,
-                            },
-                            {
-                                label: '불신/의심',
-                                data: [5, 6, 9, 10],
-                                borderColor: 'rgba(249, 115, 22, 1)',
-                                backgroundColor: 'rgba(249, 115, 22, 0.2)',
-                                fill: true,
-                                tension: 0.3,
-                            },
-                            {
-                                label: '대응/결의',
-                                data: [4, 5, 8, 9],
-                                borderColor: 'rgba(59, 130, 246, 1)',
-                                backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                                fill: true,
-                                tension: 0.3,
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 10,
-                                title: {
-                                    display: true,
-                                    text: '감정 강도'
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                            },
-                            tooltip: {
-                                mode: 'index',
-                                intersect: false,
-                            }
-                        },
-                        interaction: {
-                            mode: 'nearest',
-                            axis: 'x',
-                            intersect: false
-                        }
-                    }
-                });
-            }
-        });
-    </script>
 
 </body>
 </html>
