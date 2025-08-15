@@ -31,7 +31,7 @@
 
         /* --- Layout --- */
         .container {
-            max-width: 800px;
+            max-width: 960px; /* 가로 폭을 800px에서 960px로 넓혔습니다. */
             margin: 4rem auto;
             padding: 2rem;
             box-sizing: border-box;
@@ -126,7 +126,7 @@
             margin-top: 4rem;
         }
         .signature-date {
-            text-align: right;
+            text-align: right; /* 오른쪽 정렬은 유지하되, 내용을 수정하여 공간 확보 */
             font-weight: 500;
             margin-bottom: 2rem;
         }
@@ -171,6 +171,7 @@
             .container {
                 margin: 1rem;
                 padding: 1rem;
+                max-width: 100%; /* 모바일에서는 폭을 꽉 채우도록 수정 */
             }
             .card {
                 padding: 1.5rem;
@@ -273,7 +274,7 @@
                 </article>
 
                 <section class="signature-section">
-                    <p class="signature-date"><strong>서약일: </strong></p>
+                    <p class="signature-date"><strong>서약일: </strong>&nbsp; ______년 ____월 ____일</p>
                     <p>본 서약서의 모든 내용을 숙독하고 이해하였으며, 이에 자발적인 의사로 동의하기에 아래와 같이 서명 또는 날인합니다.</p>
                     
                     <table class="signature-table">
